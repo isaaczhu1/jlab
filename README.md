@@ -1,2 +1,2 @@
-# jlab
-code for 8.13 Experimental Physics
+# jlab code
+8.13 Experimental Physics, Fall 2024
