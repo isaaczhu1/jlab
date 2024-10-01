@@ -22,11 +22,11 @@ def read_data(filename):
 
     return counts
 
-filename = 'calibration'
+filename = '290cmtest'
 counts = read_data(filename)
 
 # print the indices where counts > 10000
-print(np.where(counts > 10000))
+print(np.where(counts >= max(counts)))
 
 plt.plot(counts)
 plt.title(f'{filename}')
