@@ -1,4 +1,6 @@
 """
+NOTE: Most of this functionality can now be found in load_data.py
+
 Created on Sun Sep 29 16:34:05 2024
 
 @author: evanb, isaaczhu

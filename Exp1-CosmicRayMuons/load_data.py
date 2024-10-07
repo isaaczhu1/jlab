@@ -1,43 +1,28 @@
-'''
-
-load data from binary file such as ./data/calibration.Chn
-
-TODO: convert x-axis to time-difference
-
-'''
-
 import numpy as np
 import matplotlib.pyplot as plt
 
 def read_data(filename, left=16, right=256):
+    '''
+    Reads data from filename.Chn (which encodes a histogram) and returns the counts as a 1D numpy array
+    '''
     with open(f'./data/{filename}.Chn', 'rb') as f:
         data = f.read()
         # the data type is INTEGERS
         counts = np.frombuffer(data, dtype=np.uint16)
 
-    # print("counts.shape:",counts.shape)
-
     # must remove garbage stuff at the beginning and end
     counts = counts[left:-right]
 
     return counts
-<<<<<<< HEAD
-"""
-filename = '290cmtest'
-counts = read_data(filename)
 
-# print the indices where counts > 10000
-#print(np.where(counts >= max(counts)))
-
-plt.plot(counts)
-plt.title(f'{filename}')
-plt.xlabel('Voltage bin')
-plt.ylabel('Counts')
-plt.savefig(f'./images/{filename}.png')"""
-=======
-
-def calibrate_time(filename, calib_time):
-    # return the averaged distance between peaks
+def calibrate_time(filename, calib_time, verbose=False):
+    '''
+    Parameters:
+        filename: the name of the file to read from, which encodes a histogram
+        calib_time: the distance between peaks in the calibration file
+    Returns:
+        the time per bin
+    '''
     counts = read_data(filename)
     MAX_CNT = max(counts)
     def is_peak(i):
@@ -48,11 +33,19 @@ def calibrate_time(filename, calib_time):
             if len(peaks) == 0 or i - peaks[-1] > 10:
                 peaks.append(i)
     diffs = np.diff(peaks)
-    # print("diffs:", diffs)
+    if verbose:
+        print("number of bins between peaks:", diffs)
     return calib_time / np.mean(diffs)
 
 def remove_zeros_on_margin(counts):
-    is_zero = True
+    '''
+    For some of the data (in particular, the muon lifetime data), 
+    there are zeros on the left margin of the histogram because the apparatus
+    cannot pickup sufficiently short-lived muon decays.
+
+    This function removes the zeros on the left margin of the histogram (truncates the array of counts).
+    Also returns the number of zeros removed.
+    '''
     for i in range(len(counts)):
         if counts[i] != 0:
             break
@@ -64,11 +57,10 @@ if __name__ == '__main__':
     counts = read_data(filename)
 
     # print the indices where counts > 10000
-    print(np.where(counts >= max(counts)))
+    # print(np.where(counts >= max(counts)))
 
     plt.plot(counts)
     plt.title(f'{filename}')
     plt.xlabel('Voltage bin')
     plt.ylabel('Counts')
     plt.savefig(f'./images/{filename}.png')
->>>>>>> f7f4df3b3d7a4ac1225840c1bdb7e15f4202c0e1
