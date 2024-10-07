@@ -28,7 +28,7 @@ def remove_zeros_on_margin(counts):
         if counts[i] != 0:
             break
     counts = counts[i:]
-    return counts
+    return counts, i
 
 if __name__ == '__main__':
     filename = '200cmlongrun'
