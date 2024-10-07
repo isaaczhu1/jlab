@@ -4,20 +4,15 @@ import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
 data = read_data('lifetime_weekend')
-
-print("original num bins:", data.shape)
-# plt.plot(data)
-# plt.show()
-
-# assert False
-
 data, num_leading_zeros = remove_zeros_on_margin(data)
-print("num bins after removing dead zone with zeros:", data.shape)
 
 # bin the data
 BIN_SIZE = 20
-TIME_PER_BIN = BIN_SIZE * 10 / 4096 # in mus
-data = 20*np.mean(data[:len(data)//BIN_SIZE * BIN_SIZE].reshape(-1, BIN_SIZE), axis=1)
+CALIB_TIMESCALE = 1.28 # in mus
+
+TIME_PER_BIN = BIN_SIZE * calibrate_time('lifetime_settings_calib', CALIB_TIMESCALE) # in mus
+print(f"TIME_PER_BIN: {TIME_PER_BIN:.5f} mus")
+data = BIN_SIZE*np.mean(data[:len(data)//BIN_SIZE * BIN_SIZE].reshape(-1, BIN_SIZE), axis=1)
 print("num bins after binning:", data.shape)
 
 
@@ -32,11 +27,11 @@ def pure_exponential_decay(x, A, tau):
     return A * np.exp(-x / tau)
 
 def fit_exponential_decay(x, y):
-    popt, pcov = curve_fit(exponential_decay, x, y, p0=[max(y), 100, 0])
+    popt, pcov = curve_fit(exponential_decay, x, y, p0=[max(y), 2/TIME_PER_BIN, 0])
     return popt, pcov
 
 def fit_pure_exponential_decay(x, y):
-    popt, pcov = curve_fit(pure_exponential_decay, x, y, p0=[max(y), 100])
+    popt, pcov = curve_fit(pure_exponential_decay, x, y, p0=[max(y), 2/TIME_PER_BIN])
     return popt, pcov
 
 x = np.arange(len(data))
@@ -68,7 +63,7 @@ x_times = x * TIME_PER_BIN
 SHIFT_TIMES = True
 
 if SHIFT_TIMES:
-    x_times = x_times + num_leading_zeros // 20 * TIME_PER_BIN
+    x_times = x_times + (num_leading_zeros // BIN_SIZE) * TIME_PER_BIN
 
 print(f'Lifetime: {tau:.3f} +/- {tau_err:.3f} $\\mu$s')
 
