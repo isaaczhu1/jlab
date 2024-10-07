@@ -31,7 +31,7 @@ def remove_zeros_on_margin(counts):
     return counts
 
 if __name__ == '__main__':
-    filename = '290cmtest'
+    filename = '200cmlongrun'
     counts = read_data(filename)
 
     # print the indices where counts > 10000
