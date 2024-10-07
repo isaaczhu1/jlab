@@ -21,15 +21,15 @@ def read_data(filename):
     counts = counts[16:-256]
 
     return counts
-
+"""
 filename = '290cmtest'
 counts = read_data(filename)
 
 # print the indices where counts > 10000
-print(np.where(counts >= max(counts)))
+#print(np.where(counts >= max(counts)))
 
 plt.plot(counts)
 plt.title(f'{filename}')
 plt.xlabel('Voltage bin')
 plt.ylabel('Counts')
-plt.savefig(f'./images/{filename}.png')
+plt.savefig(f'./images/{filename}.png')"""
