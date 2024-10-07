@@ -9,27 +9,36 @@ TODO: convert x-axis to time-difference
 import numpy as np
 import matplotlib.pyplot as plt
 
-def read_data(filename):
+def read_data(filename, left=16, right=256):
     with open(f'./data/{filename}.Chn', 'rb') as f:
         data = f.read()
         # the data type is INTEGERS
         counts = np.frombuffer(data, dtype=np.uint16)
 
-    print("counts.shape:",counts.shape)
+    # print("counts.shape:",counts.shape)
 
     # must remove garbage stuff at the beginning and end
-    counts = counts[16:-256]
+    counts = counts[left:-right]
 
     return counts
 
-filename = '290cmtest'
-counts = read_data(filename)
+def remove_zeros_on_margin(counts):
+    is_zero = True
+    for i in range(len(counts)):
+        if counts[i] != 0:
+            break
+    counts = counts[i:]
+    return counts
 
-# print the indices where counts > 10000
-print(np.where(counts >= max(counts)))
+if __name__ == '__main__':
+    filename = '290cmtest'
+    counts = read_data(filename)
 
-plt.plot(counts)
-plt.title(f'{filename}')
-plt.xlabel('Voltage bin')
-plt.ylabel('Counts')
-plt.savefig(f'./images/{filename}.png')
+    # print the indices where counts > 10000
+    print(np.where(counts >= max(counts)))
+
+    plt.plot(counts)
+    plt.title(f'{filename}')
+    plt.xlabel('Voltage bin')
+    plt.ylabel('Counts')
+    plt.savefig(f'./images/{filename}.png')
