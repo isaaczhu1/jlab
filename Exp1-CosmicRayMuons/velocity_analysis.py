@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 import math
 
-filename = "bad150cm"
+filename = "200cmpleasehelp"
 bin_width = 1/79.15 # in ns
 
 data = read_data(filename)
@@ -44,23 +44,73 @@ lorentz = lambda x, m, s, A, C: A/((x-m)**2+s**2)+C
 
 
 
-initial_guess = [40, 10, 200,0]
+# initial_guess = [40, 10, 200, 0.1]
+
+est_mean = valid_centers[np.argmax(valid_data)]
+est_std = 10
+est_A = valid_data[np.argmax(valid_data)]
+est_alpha = 0.1
+
+# initial_guess = [est_mean, est_std, est_A, est_alpha, 0]
+
 means = []
 
+# print(valid_centers.shape)
+# print(valid_data.shape)
 
-[mean, std, amp,c], cov = scipy.optimize.curve_fit(normal, valid_centers, valid_data, p0=initial_guess,sigma=np.sqrt(valid_data))
+# we will fit a SKEWED NORMAL distribution to (valid_centers, valid_data)
+# the skewed normal distribution is defined as:
+# f(x) = 2*phi(x)*Phi(alpha*x)
+# where phi(x) is the standard normal distribution and Phi(x) is the cumulative distribution function of the standard normal distribution
+# Phi(x) = 1/2*(1+erf(x/sqrt(2)))
+
+def skew_normal(x, m, s, A, alpha, C):
+    return A*2*1/np.sqrt(2*np.pi)*np.exp(-1/2*(x-m)**2/s**2)*1/2*(1+scipy.special.erf(alpha*(x-m)/np.sqrt(2)))+C
+
+initial_guess = [40, 10, 200, 0.1, 0]
+
+[mean, std, amp, alpha, c], cov = scipy.optimize.curve_fit(skew_normal, valid_centers, valid_data, p0=initial_guess,sigma=np.sqrt(valid_data))
+print([mean, std, amp, alpha, c])
 
 error = np.sqrt(cov[0][0])
 
-lor = np.array([normal(x,mean, std, amp,c) for x in valid_centers])
+y_pred = np.array([skew_normal(x,mean, std, amp, alpha, c) for x in valid_centers])
 
-chi = sum([(valid_data[i]-lor[i])**2/lor[i] for i in range(len(lor))])
+# comput the chi squared value
+chi = sum([(valid_data[i]-y_pred[i])**2/y_pred[i] for i in range(len(y_pred))])
+dof = len(valid_data) - 5
+
+# we're going to define the flight time as the PEAK OF THE SKEWED NORMAL DISTRIBUTION
+# find the index of the maxmium value of y_pred
+fit_peak = valid_centers[np.argmax(y_pred)]
+peak_error = np.sqrt(cov[0][0])
 
 
+# plot the data and the fit
 plt.scatter(valid_centers, valid_data,alpha=0.5,marker=".")
-plt.plot(valid_centers, lor)
-plt.annotate(f"Mean: {np.round(mean,2)}$\pm${np.round(error,2)} ns\n$\chi^2$: {np.round(chi)} / {len(valid_data - 3)}", (10,25))
+plt.plot(valid_centers, y_pred)
+# plt.annotate(f"Mean: {np.round(mean,2)}$\pm${np.round(error,2)} ns", (10,25))
+plt.annotate(f"Peak: {np.round(fit_peak,2)}$\pm${np.round(peak_error,2)} ns", (10,25))
+plt.annotate(f"$\chi^2$: {np.round(chi)} / {dof}", (10,20))
 plt.title(f'{filename}')
 plt.xlabel('Time (ns)')
 plt.ylabel('Counts')
 plt.show()
+
+
+# [mean, std, amp,c], cov = scipy.optimize.curve_fit(normal, valid_centers, valid_data, p0=initial_guess,sigma=np.sqrt(valid_data))
+
+# error = np.sqrt(cov[0][0])
+
+# lor = np.array([normal(x,mean, std, amp,c) for x in valid_centers])
+
+# chi = sum([(valid_data[i]-lor[i])**2/lor[i] for i in range(len(lor))])
+
+
+# plt.scatter(valid_centers, valid_data,alpha=0.5,marker=".")
+# plt.plot(valid_centers, lor)
+# plt.annotate(f"Mean: {np.round(mean,2)}$\pm${np.round(error,2)} ns\n$\chi^2$: {np.round(chi)} / {len(valid_data - 3)}", (10,25))
+# plt.title(f'{filename}')
+# plt.xlabel('Time (ns)')
+# plt.ylabel('Counts')
+# plt.show()
