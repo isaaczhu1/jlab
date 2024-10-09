@@ -32,6 +32,7 @@ best_line = [(m)*d+(b) for d in corrected_distances]
 min_line = [(m+merr)*d+(b-berr) for d in corrected_distances]
 
 
+
 plt.errorbar(corrected_distances, tofs, xerr=distance_std, yerr=tof_errors,ls='none',marker="o")
 plt.fill_between(corrected_distances, min_line, max_line,alpha=0.5)
 plt.plot(corrected_distances, best_line,"b")
@@ -47,3 +48,4 @@ c = (1/m) * 1e9 # in units of cm/s
 cerr = (merr/m**2)*1e9
 cc = 2.998e10 # in units of cm/s
 print(f"fraction of speed of light: {c/cc} +- {cerr/cc}")
+
