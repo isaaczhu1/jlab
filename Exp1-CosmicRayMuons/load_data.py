@@ -53,7 +53,7 @@ def remove_zeros_on_margin(counts):
     return counts, i
 
 if __name__ == '__main__':
-    filename = 'lifetime_settings_calib'
+    filename = '150cmlongrun' 
     counts = read_data(filename)
 
     # print the indices where counts > 10000
