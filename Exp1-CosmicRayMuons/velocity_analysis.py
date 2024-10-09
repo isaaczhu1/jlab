@@ -94,5 +94,5 @@ def get_tof(filename, generate_plot=False):
 
 
 if __name__ == '__main__':
-    filename = '200cmpleasehelp'
+    filename = '290cm_final'
     print(get_tof(filename, generate_plot=True))

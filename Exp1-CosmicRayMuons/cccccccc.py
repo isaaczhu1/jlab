@@ -6,11 +6,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from velocity_analysis import get_tof
 import lin_regress as lr
+from distance_distribution_MC import get_mean_dist
 
-distances = [100, 150, 200, 290]
-corrected_distances = [112, 159, 207, 295]
-distance_std = [9, 8, 6, 5]
-# corrected_distances = [150, 200, 290]
+distances = [100, 150, 200, 250, 290]
+MC_SIM_TRIALS = 1000
+print("STARTING MC SIMULATION")
+sim = [get_mean_dist(d, MC_SIM_TRIALS) for d in distances]
+print("MC SIMULATION FINISHED")
+corrected_distances = [s[0] for s in sim]
+corrected_distances_std = [s[1] for s in sim]
+
 file_names = [str(d) + 'cm_final' for d in distances]
 
 # get the time of flight for each distance
@@ -19,33 +24,37 @@ tof_errors = [get_tof(file_name)[1] for file_name in file_names]
 # print(tofs)
 
 # plot the time of flight vs distance
-plt.plot(corrected_distances, tofs, 'o')
-plt.xlabel('distance (cm)')
-plt.ylabel('time of flight (ns)')
-plt.title('time of flight vs distance')
+# plt.plot(corrected_distances, tofs, 'o')
+plt.xlabel('Distance (cm)')
+plt.ylabel('Time of Flight (ns)')
+plt.title('Time of Flight vs Distance')
 
 # fit a line to the data
 
-m, b, merr, berr = lr.lin_regression_with_error(corrected_distances, tofs,distance_std,  tof_errors, 1000)
+m, b, merr, berr = lr.lin_regression_with_error(corrected_distances, tofs, corrected_distances_std,  tof_errors, 1000)
 max_line = [(m-merr)*d+(b+berr) for d in corrected_distances]
 best_line = [(m)*d+(b) for d in corrected_distances]
 min_line = [(m+merr)*d+(b-berr) for d in corrected_distances]
 
 
 
-plt.errorbar(corrected_distances, tofs, xerr=distance_std, yerr=tof_errors,ls='none',marker="o")
-plt.fill_between(corrected_distances, min_line, max_line,alpha=0.5)
-plt.plot(corrected_distances, best_line,"b")
+plt.errorbar(corrected_distances, tofs, xerr=corrected_distances_std, yerr=tof_errors, ls='none', marker=".", color = 'tab:orange')
+plt.fill_between(corrected_distances, min_line, max_line,alpha=0.3)
+plt.plot(corrected_distances, best_line, color = 'tab:blue')
 
-
-#plt.plot(distances, m*np.array(distances) + b)
-
-plt.savefig('./images/tof_vs_distance.png')
 
 # calculate the speed of light
 # m is in units of ns/cm
-c = (1/m) * 1e9 # in units of cm/s
-cerr = (merr/m**2)*1e9
-cc = 2.998e10 # in units of cm/s
+c = (1/m) * 1e7 # in units of m/s
+cerr = (merr/m**2)*1e7
+cc = 2.998e8 # in units of m/s
 print(f"fraction of speed of light: {c/cc} +- {cerr/cc}")
+
+# divide c by 1e8 to make it easier to read
+c_text = f"({c/1e8:.2f} $\pm$ {cerr/1e8:.2f}) x $10^8$ m/s"
+plt.text(125, 35, f"Measured c = {c_text}")
+plt.text(125, 34, f"Fraction of known c: {c/cc:.2f} $\pm$ {cerr/cc:.2f}")
+
+
+plt.savefig('./images/tof_vs_distance.png')
 
