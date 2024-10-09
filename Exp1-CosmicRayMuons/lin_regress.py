@@ -12,8 +12,8 @@ import random
 def lin_regression_with_error(x, y, xerr, yerr, trials):
     y_values = np.array(y)
     x_values = np.array(x)
-    y_err = np.array(xerr)
-    x_err = np.array(yerr)
+    y_err = np.array(yerr)
+    x_err = np.array(xerr)
 
     trials = trials # How many monti carlo runs to make
 
@@ -34,7 +34,7 @@ def lin_regression_with_error(x, y, xerr, yerr, trials):
         b_trials.append(bt)
     m_trials = np.array(m_trials)
     b_trials = np.array(b_trials)
-    print(len(b_trials))
+   # print(len(b_trials))
     # Use data to give standard deviation
     m_std = np.std(m_trials)
     b_std = np.std(b_trials)
