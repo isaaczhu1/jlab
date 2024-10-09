@@ -7,14 +7,31 @@ import matplotlib.pyplot as plt
 from velocity_analysis import get_tof
 import lin_regress as lr
 from distance_distribution_MC import get_mean_dist
+import pickle
 
 distances = [100, 150, 200, 250, 290]
-MC_SIM_TRIALS = 1000
-print("STARTING MC SIMULATION")
-sim = [get_mean_dist(d, MC_SIM_TRIALS) for d in distances]
-print("MC SIMULATION FINISHED")
-corrected_distances = [s[0] for s in sim]
-corrected_distances_std = [s[1] for s in sim]
+
+
+
+# if the pickled file exists, load it, otherwise run the simulation
+try:
+    with open('./corrected_distances.pkl', 'rb') as f:
+        corrected_distances = pickle.load(f)
+        corrected_distances_std = pickle.load(f)
+    print(f"Loaded corrected distances from pickle: {corrected_distances}, {corrected_distances_std}")
+except:
+    # perform the Monte Carlo simulation to correct for the mean flight distance
+    MC_SIM_TRIALS = 10000
+    print("STARTING MC SIMULATION")
+    sim = [get_mean_dist(d, MC_SIM_TRIALS, verbose=True) for d in distances]
+    print("MC SIMULATION FINISHED")
+    corrected_distances = [s[0] for s in sim]
+    corrected_distances_std = [s[1] for s in sim]
+    # pickle the corrected distances
+    with open('./corrected_distances.pkl', 'wb') as f:
+        pickle.dump(corrected_distances, f)
+        pickle.dump(corrected_distances_std, f)
+
 
 file_names = [str(d) + 'cm_final' for d in distances]
 
@@ -52,8 +69,8 @@ print(f"fraction of speed of light: {c/cc} +- {cerr/cc}")
 
 # divide c by 1e8 to make it easier to read
 c_text = f"({c/1e8:.2f} $\pm$ {cerr/1e8:.2f}) x $10^8$ m/s"
-plt.text(125, 35, f"Measured c = {c_text}")
-plt.text(125, 34, f"Fraction of known c: {c/cc:.2f} $\pm$ {cerr/cc:.2f}")
+plt.text(110, 35, f"Measured velocity of muons = {c_text}")
+plt.text(110, 34, f"Fraction of c: {c/cc:.2f} $\pm$ {cerr/cc:.2f}")
 
 
 plt.savefig('./images/tof_vs_distance.png')

@@ -38,22 +38,18 @@ def generate_direction():
     generate a point on the unit sphere, 
     and then accept it with probability cos(theta)^2
     '''
-    # generate theta via rejection sampling
-    # while True:
-    #     theta = random.uniform(0, np.pi/2)
-    #     if random.uniform(0, 1) < np.cos(theta)**2:
-    #         break
-    # phi = random.uniform(0, 2*np.pi)
-    theta = np.arccos(np.sqrt(random.uniform(0, 1)))
-    phi = random.uniform(0, 2*np.pi)
-    # if theta is negative, then we take the absolute value of theta
-    # this is because the angular distribution is symmetric about 0
-    if theta < 0:
-        theta = -theta
-    
-    # accept the point with probability cos(theta)^2
-    if random.uniform(0, 1) < np.cos(theta)**2:
-        return theta, phi
+    # generate a random point on the unit sphere
+    x = np.random.normal(0, 1)
+    y = np.random.normal(0, 1)
+    z = np.random.normal(0, 1)
+    norm = np.sqrt(x**2 + y**2 + z**2)
+    x /= norm
+    y /= norm
+    z /= norm
+    # accept the point with probability cos(theta)^2 = z^2
+    theta = np.arccos(z)
+    if np.random.uniform(0, 1) < z**2:
+        return theta, np.arctan2(y, x)
     else:
         return generate_direction()
 
@@ -88,7 +84,7 @@ def MC_simulation(d, N, verbose=False):
     '''
     distances = []
     while len(distances) < N:
-        if verbose and np.random.uniform(0, 1) < 0.001:
+        if verbose and np.random.uniform(0, 1) < 0.00001:
             print(len(distances))
         distance = MC_sample(d)
         if distance is not None:
@@ -96,8 +92,8 @@ def MC_simulation(d, N, verbose=False):
     return distances
 
 
-def get_mean_dist(d, N):
-    data = MC_simulation(d, N)
+def get_mean_dist(d, N, verbose=False):
+    data = MC_simulation(d, N, verbose)
     return np.mean(data), np.std(data)/np.sqrt(len(data))
 
 if __name__ == '__main__':
@@ -107,5 +103,5 @@ if __name__ == '__main__':
     print(np.std(data)/np.sqrt(len(data)))
 
 
-# plt.hist(data, bins=100, density=True)
-# plt.show()
+    # plt.hist(data, bins=100, density=True)
+    # plt.show()
