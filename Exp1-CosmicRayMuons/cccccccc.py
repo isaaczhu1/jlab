@@ -38,6 +38,8 @@ file_names = [str(d) + 'cm_final' for d in distances]
 # get the time of flight for each distance
 tofs = [get_tof(file_name)[0] for file_name in file_names]
 tof_errors = [get_tof(file_name)[1] for file_name in file_names]
+
+print(f"Loaded time-of-flights: {tofs}, {tof_errors}")
 # print(tofs)
 
 # plot the time of flight vs distance
@@ -55,11 +57,15 @@ min_line = [(m+merr)*d+(b-berr) for d in corrected_distances]
 
 
 
-plt.errorbar(corrected_distances, tofs, xerr=corrected_distances_std, yerr=tof_errors, ls='none', marker=".", color = 'tab:orange')
-plt.fill_between(corrected_distances, min_line, max_line,alpha=0.3)
-plt.plot(corrected_distances, best_line, color = 'tab:blue')
+plt.errorbar(corrected_distances, tofs, xerr=corrected_distances_std, yerr=tof_errors, ls='none', marker=".", color = 'tab:orange',label="Data")
+plt.fill_between(corrected_distances, min_line, max_line,alpha=0.3,label="$1\sigma$ error")
+plt.plot(corrected_distances, best_line, color = 'tab:blue',label="Best fit")
+plt.legend(loc="lower right")
 
 
+# calculate chi-squared of trend line
+chi = sum([(tofs[i]-best_line[i])**2/(tof_errors[i]**2) for i in range(len(tofs))])
+print(chi)
 # calculate the speed of light
 # m is in units of ns/cm
 c = (1/m) * 1e7 # in units of m/s
@@ -71,6 +77,7 @@ print(f"fraction of speed of light: {c/cc} +- {cerr/cc}")
 c_text = f"({c/1e8:.2f} $\pm$ {cerr/1e8:.2f}) x $10^8$ m/s"
 plt.text(110, 35, f"Measured velocity of muons = {c_text}")
 plt.text(110, 34, f"Fraction of c: {c/cc:.2f} $\pm$ {cerr/cc:.2f}")
+plt.text(110, 33, f"$\chi^2$: {chi:.2f} / 3, probability: 12%")
 
 
 plt.savefig('./images/tof_vs_distance.png')
