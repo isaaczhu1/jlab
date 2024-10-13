@@ -53,14 +53,15 @@ def remove_zeros_on_margin(counts):
     return counts, i
 
 if __name__ == '__main__':
-    filename = '150cmlongrun' 
+    filename = 'lifetime_settings_calib'
     counts = read_data(filename)
 
     # print the indices where counts > 10000
     # print(np.where(counts >= max(counts)))
 
     plt.plot(counts)
-    plt.title(f'{filename}')
-    plt.xlabel('Voltage bin')
-    plt.ylabel('Counts')
+    # plt.title(f'{filename}')
+    plt.title('Time to Voltage Calibration', fontsize=15)
+    plt.xlabel('Voltage bin', fontsize=13)
+    plt.ylabel('Counts', fontsize=13)
     plt.savefig(f'./images/{filename}.png')

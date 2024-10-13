@@ -45,7 +45,7 @@ if USE_BACKGROUND:
     popt, pcov = fit_exponential_decay(x, y)
     # compute the chi-squared
     y_pred = exponential_decay(x, *popt)
-    print((y - y_pred)**2 / y_pred)
+    # print((y - y_pred)**2 / y_pred)
     chi_squared = np.sum((y - y_pred)**2 / y_pred)
     dof = len(y) - len(popt)
 else:
@@ -54,6 +54,8 @@ else:
     y_pred = pure_exponential_decay(x, *popt)
     chi_squared = np.sum((y - y_pred)**2 / y_pred)
     dof = len(y) - len(popt)
+
+# print(popt)
 
 # compute tau (the mean lifetime) in microseconds
 tau = popt[1] * TIME_PER_BIN
@@ -74,8 +76,8 @@ plt.text(0.5, 0.6, f'$\\chi^2 / \\text{{dof}} = {chi_squared:.1f} / {dof}$', tra
 plt.text(0.5, 0.5, f'$\\tau = {tau:.3f} \pm {tau_err:.3f}$ $\\mu$s', transform=plt.gca().transAxes)
 
 
-plt.title('Lifetime of muons')
-plt.xlabel('Decay Time ($\\mu$s)')
-plt.ylabel('Binned Counts')
+plt.title('Lifetime of muons', fontsize=15)
+plt.xlabel('Decay Time ($\\mu$s)', fontsize=13)
+plt.ylabel('Binned Counts', fontsize=13)
 plt.legend()
 plt.savefig('./images/lifetime_weekend.png')
