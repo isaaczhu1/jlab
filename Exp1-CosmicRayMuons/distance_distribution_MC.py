@@ -97,11 +97,16 @@ def get_mean_dist(d, N, verbose=False):
     return np.mean(data), np.std(data)/np.sqrt(len(data))
 
 if __name__ == '__main__':
-    data = MC_simulation(d=100, N=10000)
+    data = MC_simulation(d=100, N=100000)
     # print the mean distance
     print(np.mean(data))
     print(np.std(data)/np.sqrt(len(data)))
+    show = True
+    if show:
+        plt.figure(figsize=[10,8])
+        plt.hist(data, bins=100, density=True)
+        plt.xlabel("Flight Distance (cm)",size=16)
+        plt.ylabel("Counts",size=16)
+        plt.title("Simulation of Muon Collisions",size=16)
 
-
-    # plt.hist(data, bins=100, density=True)
-    # plt.show()
+        plt.savefig("./images/flight_distance.png")
