@@ -32,15 +32,17 @@ except:
         pickle.dump(corrected_distances, f)
         pickle.dump(corrected_distances_std, f)
 
-
+ 
 file_names = [str(d) + 'cm_final' for d in distances]
-
 # get the time of flight for each distance
 tofs = [get_tof(file_name)[0] for file_name in file_names]
 tof_errors = [get_tof(file_name)[1] for file_name in file_names]
 
+
 print(f"Loaded time-of-flights: {tofs}, {tof_errors}")
 # print(tofs)
+
+corrected_distances_std = [0,0,0,0,0]
 
 # plot the time of flight vs distance
 # plt.plot(corrected_distances, tofs, 'o')

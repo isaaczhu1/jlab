@@ -97,7 +97,7 @@ def get_mean_dist(d, N, verbose=False):
     return np.mean(data), np.std(data)/np.sqrt(len(data))
 
 if __name__ == '__main__':
-    data = MC_simulation(d=100, N=100000)
+    data = MC_simulation(d=200, N=100000)
     # print the mean distance
     print(np.mean(data))
     print(np.std(data)/np.sqrt(len(data)))

@@ -77,7 +77,6 @@ def get_tof(filename, generate_plot=False):
     # find the index of the maxmium value of y_pred
     fit_peak = valid_centers[np.argmax(y_pred)]
     peak_error = np.sqrt(cov[0][0])
-
     if generate_plot:
         # plot the data and the fit
         plt.scatter(valid_centers, valid_data,alpha=0.5,marker=".")
