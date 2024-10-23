@@ -72,14 +72,14 @@ def rebin(counts, binsize):
     return rebin
 
 if __name__ == '__main__':
-    filename = 'Recoil30degtrial'
+    filename = 'scatter100'
     counts = read_data(filename)
-    rebin = rebin(counts, 32)
+    rebined = rebin(counts, 8)
 
     # print the indices where counts > 10000
     # print(np.where(counts >= max(counts)))
 
-    plt.plot(rebin)
+    plt.plot(rebined)
     plt.title(f'{filename}')
     #plt.title('Scattered Data', fontsize=15)
     plt.xlabel('Voltage bin', fontsize=13)
