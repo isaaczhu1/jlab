@@ -72,15 +72,16 @@ def rebin(counts, binsize):
     return rebin
 
 if __name__ == '__main__':
-    filename = 'lifetime_settings_calib'
+    filename = 'Recoil30degtrial'
     counts = read_data(filename)
+    rebin = rebin(counts, 32)
 
     # print the indices where counts > 10000
     # print(np.where(counts >= max(counts)))
 
-    plt.plot(counts)
-    # plt.title(f'{filename}')
-    plt.title('Time to Voltage Calibration', fontsize=15)
+    plt.plot(rebin)
+    plt.title(f'{filename}')
+    #plt.title('Scattered Data', fontsize=15)
     plt.xlabel('Voltage bin', fontsize=13)
     plt.ylabel('Counts', fontsize=13)
     plt.savefig(f'./images/{filename}.png')
