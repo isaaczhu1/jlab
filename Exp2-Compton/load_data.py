@@ -13,6 +13,9 @@ def read_data(filename, left=16, right=256):
     # must remove garbage stuff at the beginning and end
     counts = counts[left:-right]
 
+    # make sure counts is writable
+    counts = counts.copy()
+
     return counts
 
 def calibrate_time(filename, calib_time, verbose=False):
@@ -71,17 +74,28 @@ def rebin(counts, binsize):
             rebin[i] += counts[i*binsize+j]
     return rebin
 
-if __name__ == '__main__':
-    filename = 'scatter100'
+def gen_plot(filename, binsize=1, scale_from=0):
     counts = read_data(filename)
-    rebined = rebin(counts, 8)
-
-    # print the indices where counts > 10000
-    # print(np.where(counts >= max(counts)))
+    # find the largest value with index greater than scale_from
+    max_val = max(counts[scale_from:])
+    rebined = rebin(counts, binsize)
 
     plt.plot(rebined)
     plt.title(f'{filename}')
-    #plt.title('Scattered Data', fontsize=15)
     plt.xlabel('Voltage bin', fontsize=13)
     plt.ylabel('Counts', fontsize=13)
+    plt.ylim(0, max_val*1.5)
     plt.savefig(f'./images/{filename}.png')
+    plt.clf()
+
+if __name__ == '__main__':
+    filenames = ['scatterNaCalib',
+                'recoilNaCalib',
+                'scatterBaCalib',
+                'recoilBaCalib',
+                'scatterCsCalib',
+                'recoilCsCalib',
+                 ]
+    for filename in filenames:
+        gen_plot(filename, binsize=1, scale_from=100)
+        print(f'Generated plot for {filename}')
