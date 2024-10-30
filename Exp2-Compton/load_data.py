@@ -10,7 +10,7 @@ def read_data(filename, left=16, right=256):
     # Chn constants
     HEADER_SIZE = 32
     CHANNELS_PER_RECORD = 8
-    with open(f'./data/{filename}.Chn', 'rb') as f:
+    with open(f'./data/{filename}', 'rb') as f:
         # Read the first 32 bytes of header data
         header_data = f.read(HEADER_SIZE)
         # Unpack the header data (Fortran 'INTEGER*2' is 'int16' in Python and 'INTEGER*4' is 'int32')
@@ -40,7 +40,7 @@ def calibrate_time(filename, calib_time, verbose=False):
     Returns:
         the time per bin
     '''
-    counts = read_data(filename)
+    counts = read_data(filename)['counts']
     MAX_CNT = max(counts)
     def is_peak(i):
         return counts[i] > MAX_CNT // 4
@@ -89,7 +89,7 @@ def rebin(counts, binsize):
     return rebin
 
 def gen_plot(filename, binsize=1, scale_from=0):
-    counts = read_data(filename)
+    counts = read_data(filename)['counts']
     # find the largest value with index greater than scale_from
     max_val = max(counts[scale_from:])
     rebined = rebin(counts, binsize)
@@ -103,15 +103,14 @@ def gen_plot(filename, binsize=1, scale_from=0):
     plt.clf()
 
 if __name__ == '__main__':
-    # filenames = ['scatterNaCalib',
-    #             'recoilNaCalib',
-    #             'scatterBaCalib',
-    #             'recoilBaCalib',
-    #             'scatterCsCalib',
-    #             'recoilCsCalib',
-    #              ]
-    # for filename in filenames:
-    #     gen_plot(filename, binsize=1, scale_from=100)
-    #     print(f'Generated plot for {filename}')
-    time = read_data('cs_5')['time']
-    print(f"total run time was {time} seconds = {time/60 :.1f} minutes")
+    # generate all the raw histograms
+    angles = [30, 60, 90, 120, 140]
+    filenames = [f'goode/scatter{angle}.Chn' for angle in angles] \
+        + [f'goode/scatter{angle}marked.Chn' for angle in angles] \
+        + [f'goode/recoil{angle}.Chn' for angle in angles] \
+        + [f'goode/recoil{angle}marked.Chn' for angle in angles]
+    for filename in filenames:
+        gen_plot(filename, binsize=1, scale_from=100)
+        print(f'Generated plot for {filename}')
+    # time = read_data('cs_5')['time']
+    # print(f"total run time was {time} seconds = {time/60 :.1f} minutes")
