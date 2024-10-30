@@ -1,11 +1,20 @@
+import struct
 import numpy as np
 import matplotlib.pyplot as plt
+
 
 def read_data(filename, left=16, right=256):
     '''
     Reads data from filename.Chn (which encodes a histogram) and returns the counts as a 1D numpy array
     '''
+    # Chn constants
+    HEADER_SIZE = 32
+    CHANNELS_PER_RECORD = 8
     with open(f'./data/{filename}.Chn', 'rb') as f:
+        # Read the first 32 bytes of header data
+        header_data = f.read(HEADER_SIZE)
+        # Unpack the header data (Fortran 'INTEGER*2' is 'int16' in Python and 'INTEGER*4' is 'int32')
+        TYPE, MCA, SEG, SRTSEC, RLTIME, LVETME, SRTDTE, SRTTME, STRTCH, LNGTDT = struct.unpack('h h h 2s i i 8s 4s h h', header_data)
         data = f.read()
         # the data type is INTEGERS
         counts = np.frombuffer(data, dtype=np.uint16)
@@ -16,7 +25,12 @@ def read_data(filename, left=16, right=256):
     # make sure counts is writable
     counts = counts.copy()
 
-    return counts
+    ret = {
+        'counts': counts,
+        'time': LVETME / 50,
+    }
+
+    return ret
 
 def calibrate_time(filename, calib_time, verbose=False):
     '''
@@ -89,13 +103,15 @@ def gen_plot(filename, binsize=1, scale_from=0):
     plt.clf()
 
 if __name__ == '__main__':
-    filenames = ['scatterNaCalib',
-                'recoilNaCalib',
-                'scatterBaCalib',
-                'recoilBaCalib',
-                'scatterCsCalib',
-                'recoilCsCalib',
-                 ]
-    for filename in filenames:
-        gen_plot(filename, binsize=1, scale_from=100)
-        print(f'Generated plot for {filename}')
+    # filenames = ['scatterNaCalib',
+    #             'recoilNaCalib',
+    #             'scatterBaCalib',
+    #             'recoilBaCalib',
+    #             'scatterCsCalib',
+    #             'recoilCsCalib',
+    #              ]
+    # for filename in filenames:
+    #     gen_plot(filename, binsize=1, scale_from=100)
+    #     print(f'Generated plot for {filename}')
+    time = read_data('cs_5')['time']
+    print(f"total run time was {time} seconds = {time/60 :.1f} minutes")
