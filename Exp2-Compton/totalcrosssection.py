@@ -65,7 +65,7 @@ window_start = 1550
 window_end = 1550
 
 sigma = (raw_counts[0][window_start]-raw_counts[-1][window_start])/(np.sqrt(raw_count_errors[0][window_start]**2 + raw_count_errors[-1][window_start]**2))
-while sigma > 3:
+while sigma > 5:
     window_start -= 1
     sigma = (raw_counts[0][window_start]-raw_counts[-1][window_start])/(np.sqrt(raw_count_errors[0][window_start]**2 + raw_count_errors[-1][window_start]**2))
 
@@ -78,6 +78,9 @@ while sigma > 3:
 total_counts = [sum(raw_counts[i][window_start:window_end]) for i in range(6)]
 total_errors = np.sqrt([sum(raw_count_errors[i][window_start:window_end]**2) for i in range(6)])
 
+
+#total_counts = [sum(raw_counts[i]) for i in range(6)]
+#total_errors = np.sqrt([sum(raw_count_errors[i]**2) for i in range(6)])
 #plt.plot([window_start, window_end],[0,0],label="window")
 
 #plt.legend()
@@ -107,7 +110,7 @@ plt.annotate(f"Decay Coefficient: {mu:.3f} $\pm$ {np.sqrt(cov[1][1]):.3f} 1/cm",
 plt.annotate(f"Background Level: {C:.1f} $\pm$ {np.sqrt(cov[2][2]):.1f} Hz", (6.9,450))
 plt.annotate(f"$\chi^2$: {chi2:.2f}  /  3",(10.9,400))
 
-plt.savefig("./images/attenuation_curve.png",format="png")
+#plt.savefig("./images/attenuation_curve.png",format="png")
 ## Data analysis junk
 
 print(f"Cross-section: ({mu/(3.36*10**(-2)):.2f}+-{np.sqrt(cov[1][1])/(3.36*10**(-2)):.2f})e-29 m^2")
