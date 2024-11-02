@@ -46,8 +46,10 @@ def get_energy(filename, exp_eng_peak, verbose=False, name="none"):
     with open('data/peak_info.json', 'r') as f:
         data = json.load(f)
     data[filename] = {
+        "peak": peak,
         "std": peak_std,
-        "amplitude": peak_amplitude
+        "amplitude": peak_amplitude,
+        "num_counts": peak_std * peak_amplitude
     }
     with open('data/peak_info.json', 'w') as f:
         json.dump(data, f, indent=4)

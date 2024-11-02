@@ -9,6 +9,7 @@ import struct
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
+import json
 
 
 def read_data(filename, left=16, right=256):
@@ -78,6 +79,23 @@ if __name__ == '__main__':
     data = {}
     for filename in filenames:
         data[filename] = read_data(filename)
-    with open('./data/data.pickle', 'wb') as f:
-        pickle.dump(data, f)
+    # with open('./data/data.pickle', 'wb') as f:
+    #     pickle.dump(data, f)
     print('Stored data in data.pickle')
+
+    # also store the live times in a json file
+    live_times = {filename: data[filename]['time'] for filename in filenames}
+    with open('./data/live_times.json', 'w') as f:
+        json.dump(live_times, f, indent=4)
+
+    # store the peak information in a json file
+    peak_info = {}
+    for filename in filenames:
+        peak_info[filename] = {
+            'peak': None,
+            'num_counts': None,
+        }
+    with open('./data/peak_info.json', 'w') as f:
+        json.dump(peak_info, f, indent=4)
+
+    print('Stored live times in live_times.json')

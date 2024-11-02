@@ -1,0 +1,22 @@
+{
+    "scatter30.Chn": 971.28,
+    "scatter60.Chn": 1004.02,
+    "scatter90.Chn": 972.76,
+    "scatter120.Chn": 1061.86,
+    "scatter135.Chn": 1051.02,
+    "scatter30marked.Chn": 1050.36,
+    "scatter60marked.Chn": 1068.38,
+    "scatter90marked.Chn": 1044.52,
+    "scatter120marked.Chn": 1135.7,
+    "scatter135marked.Chn": 1107.3,
+    "recoil30.Chn": 902.7,
+    "recoil60.Chn": 937.94,
+    "recoil90.Chn": 905.84,
+    "recoil120.Chn": 986.38,
+    "recoil135.Chn": 986.14,
+    "recoil30marked.Chn": 947.52,
+    "recoil60marked.Chn": 1000.14,
+    "recoil90marked.Chn": 981.24,
+    "recoil120marked.Chn": 72.72,
+    "recoil135marked.Chn": 1035.5
+}
