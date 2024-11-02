@@ -19,22 +19,25 @@ known_energies = {
 def gaussian(x, a, b, c):
     return a * np.exp(-(x - b)**2 / (2 * c**2))
 
-def get_peak(counts, est_peak, debug=False, return_flux=False, name="none"):
+def get_peak(counts, est_peak, plot=False, peak_name="", debug=False):
     '''
-    Given a file and an estimated peak, returns the index of the peak by fitting a gaussian distribution around the peak.
+    Get the index of the peak in the counts array.
+
+    Parameters:
+        counts: the histogram array
+        est_peak: an estimate of where the peak is, as an index in the counts array
+        debug: whether to print debug information
+    Returns:
+        a dictionary with the following keys
+            'mean': the mean of the peak as an index in the counts array
+            'std': the standard deviation of the peak
+            'amplitude': the amplitude of the peak
     '''
     # smooth out counts via convolution
-    orig_counts = counts
     n_conv = 20
     counts = np.convolve(counts, np.ones(n_conv)/n_conv, mode='same')
-    # if debug:
-    #     plt.clf()
-    #     plt.plot(counts, alpha=0.5, label='smoothed')
-    #     plt.plot(orig_counts, alpha=0.5, label='original')
-    #     plt.legend()
-    #     plt.show()
-    #     plt.clf()
-    MAX_CNT = max(counts[est_peak - 50: est_peak + 50])
+
+    MAX_CNT = max(counts[est_peak - 30: est_peak + 30])
 
     # Get a region around the peak
     def is_peak(i):
@@ -58,28 +61,22 @@ def get_peak(counts, est_peak, debug=False, return_flux=False, name="none"):
     peak_params, _ = curve_fit(gaussian, peak_x, peak_counts, p0=[MAX_CNT, len(peak_counts) / 2, len(peak_counts)])
     peak_mean = int(peak_params[1] + min_peak_region_index)
 
+    # print(f'Peak at {peak_mean}')
 
-    if debug and name != "none":
-        print(f"Estimated peak index: {est_peak}, actual peak index: {peak_mean}")
-        plt.clf()
-        plt.plot(counts, color='gray', alpha=0.7, label='smoothed histogram')
-        # xplt = np.arange(int(peak_params[1] - peak_params[2]), int(peak_params[1] + peak_params[2]))
-        # plt.plot(xplt + min_peak_region_index, gaussian(xplt, *peak_params))
-        # plt.plot(peak_x, peak_counts)
-        plt.plot(peak_x + min_peak_region_index, gaussian(peak_x, *peak_params), color = 'red')
-        plt.title(f"Peak fit for {name}")
-        with open('data/live_times.json', 'r') as f:
-            live_times = json.load(f)
-            live_time = live_times["goode/" + name + ".Chn"]
-        # plt.text(peak_mean, peak_params[0], f"estimated flux: {peak_params[0] * abs(peak_params[2]) / live_time:.2f} counts/s")
-        plt.savefig(f"images/fits/{name}.png")
-        plt.clf()
+    if plot:
+        plt.plot(min_peak_region_index + peak_x, gaussian(peak_x, *peak_params), color='red')
+        plt.text(peak_mean*1.05, MAX_CNT, f'{peak_name} peak', fontsize=12, color='red')
+        # plt.show()
 
-    if return_flux:
-        # print("HI", peak_params[0], peak_params[2])
-        return peak_params[0] * abs(peak_params[2])
 
-    return int(peak_mean)
+    ret = {
+        'mean': peak_mean, # the mean of the peak as an index in the counts array
+        'std': peak_params[2],
+        'amplitude': peak_params[0],
+    }
+
+    return ret
+
 
 def get_calib_x(filename, verbose=False):
     '''
@@ -92,13 +89,32 @@ def get_calib_x(filename, verbose=False):
     calib_file = filename[:-4] + 'marked.Chn'
     counts = read_data(calib_file)['counts']  # a numpy array
 
+    plt.plot(counts, alpha=0.5)
+
     # Find the Na22 peak
-    est_na22_peak = 1000 + np.argmax(counts[1000:])
-    na22_mean = get_peak(counts, est_na22_peak, debug=verbose)
+    est_na22_peak = 500 + np.argmax(counts[500:])
+    na22_data = get_peak(counts, est_na22_peak, plot=True, peak_name="Na22", debug=verbose)
+    na22_mean = na22_data['mean']
+    na22_std = na22_data['std']
+    na22_amplitude = na22_data['amplitude']
+
+    # plt.show()
 
     # Find the Cs137 peak
     est_cs137_peak = int(na22_mean * 1.15) + np.argmax(counts[int(na22_mean * 1.15):])
-    cs137_mean = get_peak(counts, est_cs137_peak, debug=verbose)
+    cs137_data = get_peak(counts, est_cs137_peak, plot=True, peak_name="Cs137", debug=verbose)
+    cs137_mean = cs137_data['mean']
+    cs137_std = cs137_data['std']
+    cs137_amplitude = cs137_data['amplitude']
+
+    # plot the histogram with fitted peaks
+    
+    plt.title(f'Calibration of {filename}')
+    plt.xlabel('MCA channel', fontsize=13)
+    plt.ylabel('Counts', fontsize=13)
+    plt.ylim(0, max(counts[100:]) * 1.1)
+    plt.savefig(f'./images/calib_hists/{filename}.png')
+    plt.clf()
 
     if verbose:
         print("Na22 peak energy:", na22_mean)
@@ -108,13 +124,11 @@ def get_calib_x(filename, verbose=False):
     calib_slope = (known_energies['Cs137'] - known_energies['Na22']) / (cs137_mean - na22_mean)
     calib_intercept = known_energies['Na22'] - calib_slope * na22_mean
 
-    if verbose:
-        print("Calibration: y = {}x + {}".format(calib_slope, calib_intercept))
-
     # Now we get the calibrated x axis values.
     calib_counts = read_data(filename)['counts']
     calib_x = np.arange(len(calib_counts))
     calib_x = calib_slope * calib_x + calib_intercept
+
     return calib_x
 
 def inv_calib_x(orig_x, calib_x, val):
@@ -127,6 +141,24 @@ def inv_calib_x(orig_x, calib_x, val):
     return int((val - intercept) / slope)
 
 if __name__ == '__main__':
-    calibrated_x = get_calib_x('scatter100.Chn', verbose=False)
-    plt.plot(calibrated_x, read_data('scatter100marked.Chn')['counts'])
-    plt.show()
+    angles = [30, 60, 90, 120, 135]
+    marked_filenames = [f'scatter{angle}.Chn' for angle in angles] \
+        + [f'recoil{angle}.Chn' for angle in angles]
+    # get the calibrated x axes for each file, and store them in data/calib_x.pkl
+    calib_x = {}
+    for filename in marked_filenames:
+        calib_x[filename] = get_calib_x(filename)
+        # generate a plot of the calibrated histogram
+        raw_counts = read_data(filename)['counts']
+        plt.plot(calib_x[filename], raw_counts)
+        plt.title(f'Calibrated {filename}')
+        plt.xlabel('Energy (keV)', fontsize=13)
+        plt.ylabel('Counts', fontsize=13)
+        plt.savefig(f'./images/calibrated_hists/{filename}_calib.png')
+        plt.clf()
+        print(f'Calibrated {filename}')
+
+
+    with open('./data/calib_x.pkl', 'wb') as f:
+        pickle.dump(calib_x, f)
+        print('Stored calibrated x axes in data/calib_x.pkl')

@@ -1,11 +1,17 @@
 import struct
 import numpy as np
 import matplotlib.pyplot as plt
+import json
 
 
 def read_data(filename, left=16, right=256):
     '''
-    Reads data from filename.Chn (which encodes a histogram) and returns the counts as a 1D numpy array
+    Reads data from filename.Chn (which encodes a histogram)
+
+    Returns:
+        a dictionary with the following keys
+        - counts: the counts in each bin
+        - time: the time the data was taken for
     '''
     # Chn constants
     HEADER_SIZE = 32
@@ -112,5 +118,9 @@ if __name__ == '__main__':
     for filename in filenames:
         gen_plot(filename, binsize=1, scale_from=100)
         print(f'Generated plot for {filename}')
-    # time = read_data('cs_5')['time']
-    # print(f"total run time was {time} seconds = {time/60 :.1f} minutes")
+
+    # store the live times of all the filenames in a json
+    live_times = {filename: read_data(filename)['time'] for filename in filenames}
+    with open('./data/live_times.json', 'w') as f:
+        json.dump(live_times, f)
+    print('Stored live times in live_times.json')
