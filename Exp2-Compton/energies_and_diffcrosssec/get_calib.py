@@ -58,7 +58,7 @@ def get_peak(counts, est_peak, plot=False, peak_name="", debug=False):
 
     peak_counts = counts[np.array(peak_region) == 1]
     peak_x = np.arange(len(peak_counts))
-    peak_params, _ = curve_fit(gaussian, peak_x, peak_counts, p0=[MAX_CNT, len(peak_counts) / 2, len(peak_counts)])
+    peak_params, pcov = curve_fit(gaussian, peak_x, peak_counts, p0=[MAX_CNT, len(peak_counts) / 2, len(peak_counts)])
     peak_mean = int(peak_params[1] + min_peak_region_index)
 
     # print(f'Peak at {peak_mean}')
@@ -71,8 +71,11 @@ def get_peak(counts, est_peak, plot=False, peak_name="", debug=False):
 
     ret = {
         'mean': peak_mean, # the mean of the peak as an index in the counts array
+        'mean_err': np.sqrt(np.diag(pcov))[1],
         'std': peak_params[2],
+        'std_err': np.sqrt(np.diag(pcov))[2],
         'amplitude': peak_params[0],
+        'amplitude_err': np.sqrt(np.diag(pcov))[0]
     }
 
     return ret

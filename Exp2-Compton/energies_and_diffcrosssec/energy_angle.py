@@ -17,6 +17,23 @@ from get_calib import *
 import json
 import pickle
 
+def load_energy(filename):
+    '''
+    Load the energy of the peaks from the peak_info.json file
+    '''
+    with open('data/calib_x.pkl', 'rb') as f:
+        data = pickle.load(f)
+        counts_calib_x = data[filename]
+    with open('data/peak_info.json', 'r') as f:
+        data = json.load(f)
+    peak_index = data[filename]['peak']
+    peak_err = data[filename]['peak_err']
+
+    energy_per_index = (counts_calib_x[-1] - counts_calib_x[0]) / (len(counts_calib_x) - 1)
+    peak_energy_err = peak_err * energy_per_index
+
+    return counts_calib_x[peak_index], peak_energy_err
+
 def get_energy(filename, exp_eng_peak, verbose=False, name="none"):
     '''
     Given a file and an expected energy of peak, returns the energy of the peak
@@ -41,6 +58,9 @@ def get_energy(filename, exp_eng_peak, verbose=False, name="none"):
     peak = peak_info['mean']
     peak_std = abs(peak_info['std'])
     peak_amplitude = peak_info['amplitude']
+    peak_err = peak_info['mean_err']
+    peak_std_err = peak_info['std_err']
+    peak_amplitude_err = peak_info['amplitude_err']
 
     # save the peak info to the json file data/peak_info.json
     with open('data/peak_info.json', 'r') as f:
@@ -49,7 +69,11 @@ def get_energy(filename, exp_eng_peak, verbose=False, name="none"):
         "peak": peak,
         "std": peak_std,
         "amplitude": peak_amplitude,
-        "num_counts": peak_std * peak_amplitude
+        "num_counts": peak_std * peak_amplitude,
+        "peak_err": peak_err,
+        "std_err": peak_std_err,
+        "amplitude_err": peak_amplitude_err,
+        "num_counts_err": peak_std_err * peak_amplitude + peak_std * peak_amplitude_err
     }
     with open('data/peak_info.json', 'w') as f:
         json.dump(data, f, indent=4)
@@ -58,9 +82,9 @@ def get_energy(filename, exp_eng_peak, verbose=False, name="none"):
     if verbose:
         print(f"The actual peak index: {peak}")
 
-    energy = counts_calib_x[peak]
+    energy = counts_calib_x[peak] # convert index to energy
 
-    return energy
+    print(f"stored data for {filename} in data/peak_info.json")
 
 if __name__ == "__main__":
     angles = [30, 60, 90, 120, 135]
@@ -86,14 +110,18 @@ if __name__ == "__main__":
     # print("actual recoil energies:", recoil_energies)
 
     scatter_energies = []
+    scatter_energies_errors = []
     recoil_energies = []
+    recoil_energies_errors = []
 
     for angle in angles:
         filename = f'scatter{angle}.Chn'
         counts = read_data(filename)['counts']
         # smooth counts by replacing every bin with the average of the bin and its neighbors
         counts = np.array([np.mean(counts[max(0, i-1):min(len(counts), i+2)]) for i in range(len(counts))])
-        scatter_energy = get_energy(f'scatter{angle}.Chn', expected_scatter[angles.index(angle)], verbose=verbose, name="scatter"+str(angle))
+        get_energy(f'scatter{angle}.Chn', expected_scatter[angles.index(angle)], verbose=verbose, name="scatter"+str(angle))
+        scatter_energy, scatter_energy_err = load_energy(f'scatter{angle}.Chn')
+        # scatter_energy = get_energy(f'scatter{angle}.Chn', expected_scatter[angles.index(angle)], verbose=verbose, name="scatter"+str(angle))
         print(f"Expected scattering energy: {expected_scatter[angles.index(angle)]}")
         print(f"Actual scattering energy: {scatter_energy}")
         plt.plot(range(len(counts)), counts, alpha=0.5)
@@ -103,13 +131,16 @@ if __name__ == "__main__":
         plt.savefig(f'./images/energy_measurements/{filename[:-4]}_calib.png')
         plt.clf()
         scatter_energies.append(scatter_energy)
+        scatter_energies_errors.append(scatter_energy_err)
 
     for angle in angles:
         filename = f'recoil{angle}.Chn'
         counts = read_data(filename)['counts']
         # smooth counts by replacing every bin with the average of the bin and its neighbors
         counts = np.array([np.mean(counts[max(0, i-1):min(len(counts), i+2)]) for i in range(len(counts))])
-        recoil_energy = get_energy(f'recoil{angle}.Chn', expected_recoil[angles.index(angle)], verbose=verbose, name="recoil"+str(angle))
+        get_energy(f'recoil{angle}.Chn', expected_recoil[angles.index(angle)], verbose=verbose, name="recoil"+str(angle))
+        recoil_energy, recoil_energy_err = load_energy(f'recoil{angle}.Chn')
+        # recoil_energy = get_energy(f'recoil{angle}.Chn', expected_recoil[angles.index(angle)], verbose=verbose, name="recoil"+str(angle))
         print(f"Expected recoil energy: {expected_recoil[angles.index(angle)]}")
         print(f"Actual recoil energy: {recoil_energy}")
         plt.plot(range(len(counts)), counts, alpha=0.5)
@@ -119,13 +150,16 @@ if __name__ == "__main__":
         plt.savefig(f'./images/energy_measurements/{filename[:-4]}_calib.png')
         plt.clf()
         recoil_energies.append(recoil_energy)
+        recoil_energies_errors.append(recoil_energy_err)
 
     data = {
         "angles": angles,
         "expected_scatter": expected_scatter,
         "expected_recoil": expected_recoil,
         "scatter_energies": scatter_energies,
-        "recoil_energies": recoil_energies
+        "recoil_energies": recoil_energies,
+        "scatter_energies_errors": scatter_energies_errors,
+        "recoil_energies_errors": recoil_energies_errors
     }
 
     with open('data/energy_angle.json', 'w') as f:

@@ -34,6 +34,7 @@ def kn_function(theta, r_e, c):
 
 if __name__ == "__main__":
     angles = [30, 60, 90, 120, 135]
+    angle_errors = [5 for _ in angles]
     INCOMING_ENERGY = 661.66
     expected_scatter = [
         INCOMING_ENERGY / (1 + (INCOMING_ENERGY / 511) * (1 - np.cos(np.radians(angle))))
@@ -45,6 +46,7 @@ if __name__ == "__main__":
     ]
 
     recoil_num_counts = []
+    recoil_num_counts_error = []
 
     # load recoil counts from peak_info.json
     with open('data/peak_info.json', 'r') as f:
@@ -53,8 +55,10 @@ if __name__ == "__main__":
         filename = f'recoil{angle}.Chn'
         num_counts = data[filename]['num_counts']
         recoil_num_counts.append(num_counts)
+        num_counts_error = data[filename]['num_counts_err']
+        recoil_num_counts_error.append(num_counts_error)
 
-    print(recoil_num_counts)
+    print("recoil num counts", recoil_num_counts)
 
     # load live times from data/live_times.json
     live_times = []
@@ -67,22 +71,28 @@ if __name__ == "__main__":
 
     # divide the number of counts by the live time to get the flux
     recoil_flux = [recoil_num_counts[i] / live_times[i] for i in range(len(angles))]
+    recoil_flux_error = [recoil_num_counts_error[i] / live_times[i] for i in range(len(angles))]
 
-    fluxes_dict = dict(zip(angles, recoil_flux))
+    fluxes_dict = {}
+    for i in range(len(angles)):
+        fluxes_dict[f'recoil{angles[i]}'] = {
+            'flux': recoil_flux[i],
+            'flux_error': recoil_flux_error[i]
+        }
     with open('data/fluxes.json', 'w') as f:
         json.dump(fluxes_dict, f, indent=4)
 
     # fit the flux vs angle to the Klein-Nishina formula
     popt, pcov = curve_fit(kn_function, angles, recoil_flux)
-    print(popt)
+    print("KN popt", popt)
     # fit the flux vs angle to the Thomson formula
     popt_thomson, pcov_thomson = curve_fit(thomson, angles, recoil_flux)
-    print(popt_thomson)
+    print("Thomson popt", popt_thomson)
     # plot the fit
-    plt.scatter(angles, recoil_flux)
+    plt.errorbar(angles, recoil_flux, xerr=angle_errors, yerr=recoil_flux_error, fmt='o', label='Fluxes with errors', color='blue')
     theta_plt = np.linspace(min(angles), max(angles), 100)
-    plt.plot(theta_plt, kn_function(theta_plt, *popt), label=f"Klein-Nishina")
-    plt.plot(theta_plt, thomson(theta_plt, *popt_thomson), label=f"Thomson")
+    plt.plot(theta_plt, kn_function(theta_plt, *popt), label=f"Klein-Nishina", color='blue')
+    plt.plot(theta_plt, thomson(theta_plt, *popt_thomson), label=f"Thomson", color='red')
     plt.xlabel("Angle (degrees)")
     plt.ylabel("Flux")
     plt.title("Flux vs Angle")
