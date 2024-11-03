@@ -55,9 +55,27 @@ def gen_plot(filename, binsize=1, scale_from=0):
     # find the largest value with index greater than scale_from
     max_val = max(counts[scale_from:])
 
+    if "scatter" in filename:
+        file_type = "scatter"
+    else:
+        file_type = "recoil"
+    if "marked" in filename:
+        marked = True
+    else:
+        marked = False
+    # angle is the digits in the file name
+    angle = ""
+    for char in filename:
+        if char.isdigit():
+            angle += char
+
+    title = f'Raw data for {file_type} at {angle}°'
+    if marked:
+        title += " (marked)"
+
     plt.plot(counts)
-    plt.title(f'{filename} Raw Counts')
-    plt.xlabel('Voltage bin', fontsize=13)
+    plt.title(title, fontsize=16)
+    plt.xlabel('MCA channel', fontsize=13)
     plt.ylabel('Counts', fontsize=13)
     plt.ylim(0, max_val*1.5)
     # plt.show()

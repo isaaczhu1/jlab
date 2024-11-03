@@ -65,7 +65,7 @@ def get_peak(counts, est_peak, plot=False, peak_name="", debug=False):
 
     if plot:
         plt.plot(min_peak_region_index + peak_x, gaussian(peak_x, *peak_params), color='red')
-        plt.text(peak_mean*1.05, MAX_CNT, f'{peak_name} peak', fontsize=12, color='red')
+        plt.text(peak_mean*1.1, MAX_CNT, f'{peak_name} peak', fontsize=12, color='red')
         # plt.show()
 
 
@@ -111,8 +111,16 @@ def get_calib_x(filename, verbose=False):
     cs137_amplitude = cs137_data['amplitude']
 
     # plot the histogram with fitted peaks
+
+    # get the name of the file. this consists of either "scatter" or "recoil" followed by the angle
+    if "scatter" in filename:
+        file_type = "scatter"
+        angle = filename[7:-4]
+    else:
+        file_type = "recoil"
+        angle = filename[6:-4]
     
-    plt.title(f'Calibration of {filename}')
+    plt.title(f'Calibration of {file_type} at {angle}°', fontsize=16)
     plt.xlabel('MCA channel', fontsize=13)
     plt.ylabel('Counts', fontsize=13)
     plt.ylim(0, max(counts[100:]) * 1.1)
@@ -150,11 +158,17 @@ if __name__ == '__main__':
     # get the calibrated x axes for each file, and store them in data/calib_x.pkl
     calib_x = {}
     for filename in marked_filenames:
+        if "scatter" in filename:
+            file_type = "scatter"
+            angle = filename[7:-4]
+        else:
+            file_type = "recoil"
+            angle = filename[6:-4]
         calib_x[filename] = get_calib_x(filename)
         # generate a plot of the calibrated histogram
         raw_counts = read_data(filename)['counts']
-        plt.plot(calib_x[filename], raw_counts)
-        plt.title(f'Calibrated {filename}')
+        plt.plot(calib_x[filename], raw_counts, alpha=0.5)
+        plt.title(f'Calibrated {file_type} at {angle}°', fontsize=16)
         plt.xlabel('Energy (keV)', fontsize=13)
         plt.ylabel('Counts', fontsize=13)
         plt.savefig(f'./images/calibrated_hists/{filename}_calib.png')

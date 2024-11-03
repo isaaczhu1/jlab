@@ -88,13 +88,18 @@ if __name__ == "__main__":
     # fit the flux vs angle to the Thomson formula
     popt_thomson, pcov_thomson = curve_fit(thomson, angles, recoil_flux)
     print("Thomson popt", popt_thomson)
+
+    # add a 10% error to the fluxes
+    recoil_flux_error = [0.1 * flux for flux in recoil_flux]
+
+
     # plot the fit
     plt.errorbar(angles, recoil_flux, xerr=angle_errors, yerr=recoil_flux_error, fmt='o', label='Fluxes with errors', color='blue')
     theta_plt = np.linspace(min(angles), max(angles), 100)
     plt.plot(theta_plt, kn_function(theta_plt, *popt), label=f"Klein-Nishina", color='blue')
     plt.plot(theta_plt, thomson(theta_plt, *popt_thomson), label=f"Thomson", color='red')
-    plt.xlabel("Angle (degrees)")
-    plt.ylabel("Flux")
-    plt.title("Flux vs Angle")
+    plt.xlabel("Angle (degrees)", fontsize=14)
+    plt.ylabel("Flux", fontsize=14)
+    plt.title("Flux vs Angle", fontsize=16)
     plt.legend()
     plt.savefig("images/for_paper/klein_nishina.png")
