@@ -21,8 +21,8 @@ total_counts = [0,0]
 total_errors = [0,0]
 live_times = []
 attenuation = [0,2.48,4.98,7.5,10.03,12.50]
-data_filenames = [f"cs2_{i}" for i in range(6)]
-background_filename = "cs2_background"
+data_filenames = [f"attenuation/cs2_{i}.Chn" for i in range(6)]
+background_filename = "attenuation/cs2_background.Chn"
     
 data = [read_data(filename) for filename in data_filenames] 
 data.append(read_data(background_filename))
@@ -112,6 +112,6 @@ plt.annotate(f"$\chi^2$: {chi2:.2f}  /  3",(10.9,400))
 
 #plt.savefig("./images/attenuation_curve.png",format="png")
 ## Data analysis junk
-
+print(total_counts, total_errors)
 print(f"Cross-section: ({mu/(3.36*10**(-2)):.2f}+-{np.sqrt(cov[1][1])/(3.36*10**(-2)):.2f})e-29 m^2")
 
