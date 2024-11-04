@@ -92,6 +92,11 @@ if __name__ == "__main__":
     # add a 10% error to the fluxes
     recoil_flux_error = [0.1 * flux for flux in recoil_flux]
 
+    # get chi squared values for the fits
+    chi_squared_kn = np.sum((np.array(recoil_flux) - np.array(kn_function(angles, *popt)))**2 / np.array(recoil_flux_error)**2)
+    chi_squared_thomson = np.sum((np.array(recoil_flux) - np.array(thomson(angles, *popt_thomson)))**2 / np.array(recoil_flux_error)**2)
+    print(f"Klein-Nishina: chi^2 / dof = {chi_squared_kn} / {len(angles) - len(popt)}")
+    print(f"Thomson: chi^2 / dof = {chi_squared_thomson} / {len(angles) - len(popt_thomson)}")
 
     # plot the fit
     plt.errorbar(angles, recoil_flux, xerr=angle_errors, yerr=recoil_flux_error, fmt='o', label='Fluxes with errors', color='blue')
@@ -100,6 +105,11 @@ if __name__ == "__main__":
     plt.plot(theta_plt, thomson(theta_plt, *popt_thomson), label=f"Thomson", color='red')
     plt.xlabel("Angle (degrees)", fontsize=14)
     plt.ylabel("Flux", fontsize=14)
+
+    # annotate the chi squared values
+    plt.text(0.4, 0.7, f"Klein-Nishina: $\chi^2$ / dof = {chi_squared_kn:.1f} / {len(angles) - len(popt)}", fontsize=12, transform=plt.gca().transAxes)
+    plt.text(0.4, 0.65, f"Thomson: $\chi^2$ / dof = {chi_squared_thomson:.1f} / {len(angles) - len(popt_thomson)}", fontsize=12, transform=plt.gca().transAxes)
+
     plt.title("Flux vs Angle", fontsize=16)
     plt.legend()
     plt.savefig("images/for_paper/klein_nishina.png")
