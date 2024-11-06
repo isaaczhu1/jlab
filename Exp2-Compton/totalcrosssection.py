@@ -10,6 +10,7 @@ import numpy as np
 import scipy.optimize
 import matplotlib.pyplot as plt
 import matplotlib
+from matplotlib.patches import Rectangle
 import math
 import random
 
@@ -65,7 +66,7 @@ window_start = 1550
 window_end = 1550
 
 sigma = (raw_counts[0][window_start]-raw_counts[-1][window_start])/(np.sqrt(raw_count_errors[0][window_start]**2 + raw_count_errors[-1][window_start]**2))
-while sigma > 5:
+while sigma > 3:
     window_start -= 1
     sigma = (raw_counts[0][window_start]-raw_counts[-1][window_start])/(np.sqrt(raw_count_errors[0][window_start]**2 + raw_count_errors[-1][window_start]**2))
 
@@ -79,17 +80,26 @@ total_counts = [sum(raw_counts[i][window_start:window_end]) for i in range(6)]
 total_errors = np.sqrt([sum(raw_count_errors[i][window_start:window_end]**2) for i in range(6)])
 
 
-#total_counts = [sum(raw_counts[i]) for i in range(6)]
-#total_errors = np.sqrt([sum(raw_count_errors[i]**2) for i in range(6)])
+total_counts = [sum(raw_counts[i]) for i in range(6)]
+total_errors = np.sqrt([sum(raw_count_errors[i]**2) for i in range(6)])
+fig, ax =plt.subplots()
+ax.plot(raw_counts[0],label="No Attenuation")
+ax.plot(raw_counts[5], label="Max Attenuation")
+rect1 = plt.Rectangle((window_start, 0), (window_end-window_start), 5, fill=False, color='r',linewidth=2)
+ax.add_patch(rect1)
+plt.xlabel("Voltage Bin",size=14)
+plt.ylabel("Count Rate (Hz)",size=14)
+plt.title("Raw Counts and Selection Window")
 #plt.plot([window_start, window_end],[0,0],label="window")
 
-#plt.legend()
+plt.legend()
+plt.savefig('./images/selection.png')
 ## Collect the count rates
 
 """
 total_counts = [sum(raw_counts[i]) for i in range(6)]
 total_errors = np.sqrt([sum(raw_count_errors[i]**2) for i in range(6)])
-"""
+
 
 plt.errorbar(attenuation, total_counts,xerr=0.01,yerr=total_errors,ls="None",marker=".",label="Data")
 ## Fit an exponential
@@ -114,4 +124,4 @@ plt.annotate(f"$\chi^2$: {chi2:.2f}  /  3",(10.9,400))
 ## Data analysis junk
 print(total_counts, total_errors)
 print(f"Cross-section: ({mu/(3.36*10**(-2)):.2f}+-{np.sqrt(cov[1][1])/(3.36*10**(-2)):.2f})e-29 m^2")
-
+"""
