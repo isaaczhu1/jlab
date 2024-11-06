@@ -23,7 +23,7 @@ def read_data(filename):
     """
     
     
-    f = open(f".data/{filename}.txt")
+    f = open(f"./common_data/{filename}.txt")
     for i in range(7):
         f.readline()
     
