@@ -80,20 +80,28 @@ total_counts = [sum(raw_counts[i][window_start:window_end]) for i in range(6)]
 total_errors = np.sqrt([sum(raw_count_errors[i][window_start:window_end]**2) for i in range(6)])
 
 
-total_counts = [sum(raw_counts[i]) for i in range(6)]
-total_errors = np.sqrt([sum(raw_count_errors[i]**2) for i in range(6)])
+#total_counts = [sum(raw_counts[i]) for i in range(6)]
+#total_errors = np.sqrt([sum(raw_count_errors[i]**2) for i in range(6)])
+
+difference = []
+for i in range(len(raw_counts[0])):
+    if (np.sqrt(raw_count_errors[0][i]**2 + raw_count_errors[-1][i]**2)) > 0: 
+        difference.append((raw_counts[0][i]-raw_counts[-1][i])/(np.sqrt(raw_count_errors[0][i]**2 + raw_count_errors[-1][i]**2)))
+    else:
+        difference.append(0)
 fig, ax =plt.subplots()
-ax.plot(raw_counts[0],label="No Attenuation")
-ax.plot(raw_counts[5], label="Max Attenuation")
-rect1 = plt.Rectangle((window_start, 0), (window_end-window_start), 5, fill=False, color='r',linewidth=2)
+ax.plot(difference)
+#ax.plot(raw_counts[0],label="No Attenuation")
+#ax.plot(raw_counts[5], label="Max Attenuation")
+rect1 = plt.Rectangle((window_start, 0), (window_end-window_start), 25, fill=False, color='r',linewidth=2)
 ax.add_patch(rect1)
 plt.xlabel("Voltage Bin",size=14)
-plt.ylabel("Count Rate (Hz)",size=14)
-plt.title("Raw Counts and Selection Window")
+plt.ylabel("Deviation between max and min attenuation ($\sigma$)",size=14)
+plt.title("Deviation and Selection Window")
 #plt.plot([window_start, window_end],[0,0],label="window")
 
 plt.legend()
-plt.savefig('./images/selection.png')
+#plt.savefig('./images/selection.png')
 ## Collect the count rates
 
 """
@@ -101,7 +109,7 @@ total_counts = [sum(raw_counts[i]) for i in range(6)]
 total_errors = np.sqrt([sum(raw_count_errors[i]**2) for i in range(6)])
 
 
-plt.errorbar(attenuation, total_counts,xerr=0.01,yerr=total_errors,ls="None",marker=".",label="Data")
+
 ## Fit an exponential
 
 exp = lambda x, A, B, C: A*np.exp(-B*x)+C
@@ -109,19 +117,25 @@ exp = lambda x, A, B, C: A*np.exp(-B*x)+C
 guess = [total_counts[0], 0.08, 0]
         
 [A, mu, C], cov = scipy.optimize.curve_fit(exp, attenuation, total_counts, p0=guess, sigma=total_errors)
+
+plt.errorbar(attenuation, [total_counts[i]-exp(attenuation[i], A, mu, C) for i in range(len(attenuation))],xerr=0.01,yerr=total_errors,ls="None",marker=".",label="Data Residuals")
+plt.plot([-0.5,13],[0,0],ls="--")
 chi2 = sum([((total_counts[i] - exp(attenuation[i], A, mu,C))/(total_errors[i]))**2 for i in range(6)])
 
-plt.plot(range(14), [exp(x, A, mu, C) for x in range(14)], label="Exponential Fit")
+#plt.plot(range(14), [exp(x, A, mu, C) for x in range(14)], label="Exponential Fit")
 plt.legend()
+plt.title("Residuals of Data")
 plt.xlabel("Plastic Layer Thickness (cm)",size=12)
-plt.ylabel("Photon Detection Rate (Hz)",size=12)
+plt.ylabel("Residual (Hz)",size=12)
+#plt.savefig("./images/Residual.png")
 
-plt.annotate(f"Decay Coefficient: {mu:.3f} $\pm$ {np.sqrt(cov[1][1]):.3f} 1/cm", (5.7,500))
-plt.annotate(f"Background Level: {C:.1f} $\pm$ {np.sqrt(cov[2][2]):.1f} Hz", (6.9,450))
-plt.annotate(f"$\chi^2$: {chi2:.2f}  /  3",(10.9,400))
+#plt.annotate(f"Decay Coefficient: {mu:.3f} $\pm$ {np.sqrt(cov[1][1]):.3f} 1/cm", (5.7,500))
+#plt.annotate(f"Background Level: {C:.1f} $\pm$ {np.sqrt(cov[2][2]):.1f} Hz", (6.9,450))
+#plt.annotate(f"$\chi^2$: {chi2:.2f}  /  3",(10.9,400))
 
 #plt.savefig("./images/attenuation_curve.png",format="png")
 ## Data analysis junk
-print(total_counts, total_errors)
+#print(total_counts, total_errors)
 print(f"Cross-section: ({mu/(3.36*10**(-2)):.2f}+-{np.sqrt(cov[1][1])/(3.36*10**(-2)):.2f})e-29 m^2")
+
 """
