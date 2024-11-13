@@ -1,3 +1,6 @@
+# our data files
+Exp3-pressure/common_data/Run3-top.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
