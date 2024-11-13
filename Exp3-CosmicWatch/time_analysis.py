@@ -7,16 +7,17 @@ Created on Mon Nov  4 11:28:06 2024
 from readfile import read_data
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 # Extract file name
-filename = "2DayRun1-marin" 
+filename = "Run2-top" 
 
 
 
-start_time = (0,12,28) # 12*3600+28*60 # days, hours, minutes
-end_time = (2,8,40) # 2*24*3600+8*3600+40*60
+#start_time = (0,11,47) # 12*3600+28*60 # days, hours, minutes
+#end_time = (2,18,24) # 2*24*3600+8*3600+40*60
 
-def extract_times(clock):
+def extract_times(clock, start_time):
     """
     
 
@@ -41,7 +42,7 @@ def get_hourly_rate(filename, start_time, end_time):
     #times = [] 
     counts = [0]*24
     for datum in data:
-        time = extract_times(datum[1])
+        time = extract_times(datum[1],start_time)
         counts[time // 3600] += 1
         # Normalize based on how many hours we segmented over.
     counts = np.array(counts)
@@ -63,9 +64,10 @@ def get_hourly_rate(filename, start_time, end_time):
     return counts, errors, num_hours
    
 def normalize(counts, hours):
+    norm = np.zeros(len(counts))
     for i in range(len(counts)):
-        counts[i] /= hours[i]
-    return counts
+        norm[i] = counts[i]/hours[i]
+    return norm
 
 
 #start_time = (0,12,5)
@@ -73,18 +75,22 @@ def normalize(counts, hours):
 counts = np.zeros(24)
 errors = np.zeros(24)
 num_hours = np.zeros(24)
+
 #counts, errors, num_hours =  get_hourly_rate(filename,start_time,end_time) 
 
-filenames = ["2DayRun1-marin"]
-for file in filenames:
-    tcount, terr, thour = get_hourly_rate(file, start_time, end_time)
+filenames = ["2DayRun1-iapetus", "Run2-top"]
+times = [[(0,12,28),(2,8,40)],[(0,11,47),(2,18,24)]]
+for i in range(0,2):
+    tcount, terr, thour = get_hourly_rate(filenames[i], times[i][0], times[i][1])
     counts += tcount
-    errors += terr
+    errors += terr**2
     num_hours += thour
 
 
+errors = np.sqrt(errors)
 counts = normalize(counts, num_hours)
 errors = normalize(errors, num_hours)
+print(sum(errors)/24)
 average = sum(counts)/24 # Average value
 
 chi2 = 0
@@ -93,11 +99,13 @@ for i in range(24):
     
 print(f"chi-squared is {chi2} // 23")
 
-plt.errorbar([i+0.5 for i in range(24)], counts, yerr=errors, xerr=0.5,linestyle='none',label="Data")
-plt.plot([0,24], [average, average],label="Average")
+plt.errorbar([math.sin((i+0.5)*math.pi/24) for i in range(24)], counts, yerr=errors,xerr=[math.pi/48*math.cos((i+0.5)*math.pi/24) for i in range(24)], linestyle='none',label="Data")
 
-plt.xlabel("Hours since midnight")
-plt.xlim(0,24)
+print(np.corrcoef([math.sin((i+0.5)*math.pi/24) for i in range(24)], counts))
+#plt.plot([0,24], [average, average],label="Average")
+
+plt.xlabel("Sine of time")
+#plt.xlim(0,24)
 plt.ylabel("Count rate per hour")
 plt.legend()
 
