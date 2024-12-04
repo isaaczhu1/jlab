@@ -87,7 +87,7 @@ def get_energy(filename, exp_eng_peak, verbose=False, name="none"):
     print(f"stored data for {filename} in data/peak_info.json")
 
 if __name__ == "__main__":
-    angles = [30, 60, 90, 120, 135]
+    angles = [120, 127, 135]
 
     INCOMING_ENERGY = 661.66
     expected_scatter = [

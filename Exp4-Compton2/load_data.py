@@ -84,7 +84,7 @@ def gen_plot(filename, binsize=1, scale_from=0):
 
 if __name__ == '__main__':
     # generate all the raw histograms
-    angles = [30, 60, 90, 120, 135]
+    angles = [120, 127, 135]
     filenames = [f'scatter{angle}.Chn' for angle in angles] \
         + [f'scatter{angle}marked.Chn' for angle in angles] \
         + [f'recoil{angle}.Chn' for angle in angles] \

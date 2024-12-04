@@ -1,0 +1,86 @@
+{
+    "scatter120.Chn": {
+        "peak": 510,
+        "std": 44.38087372729511,
+        "amplitude": 16.74655891320949,
+        "num_counts": 743.2269164938589,
+        "peak_err": 0.35084210506417235,
+        "std_err": 0.5212900225185124,
+        "amplitude_err": 0.1050261443730336,
+        "num_counts_err": 13.39096612445884
+    },
+    "scatter127.Chn": {
+        "peak": 487,
+        "std": 46.48192497514193,
+        "amplitude": 16.65815951495209,
+        "num_counts": 774.3033207979497,
+        "peak_err": 0.4004146425999182,
+        "std_err": 0.6150233009499213,
+        "amplitude_err": 0.10851191611950753,
+        "num_counts_err": 15.288998996612019
+    },
+    "scatter135.Chn": {
+        "peak": 467,
+        "std": 41.35415412657053,
+        "amplitude": 16.499601304673682,
+        "num_counts": 682.3270553804396,
+        "peak_err": 0.38090155919522817,
+        "std_err": 0.5457029468160932,
+        "amplitude_err": 0.11928085625717325,
+        "num_counts_err": 13.936639967259532
+    },
+    "scatter120marked.Chn": {
+        "peak": null,
+        "num_counts": null
+    },
+    "scatter127marked.Chn": {
+        "peak": null,
+        "num_counts": null
+    },
+    "scatter135marked.Chn": {
+        "peak": null,
+        "num_counts": null
+    },
+    "recoil120.Chn": {
+        "peak": 963,
+        "std": 66.49934469026807,
+        "amplitude": 14.47968340875663,
+        "num_counts": 962.889458004863,
+        "peak_err": 0.9245226141000756,
+        "std_err": 1.0660411149131224,
+        "amplitude_err": 0.1687931791142947,
+        "num_counts_err": 26.6605736439476
+    },
+    "recoil127.Chn": {
+        "peak": 975,
+        "std": 65.3264734610418,
+        "amplitude": 13.876328248979785,
+        "num_counts": 906.4915890936826,
+        "peak_err": 1.0306222696602214,
+        "std_err": 1.1183795140275397,
+        "amplitude_err": 0.18754996308209781,
+        "num_counts_err": 27.770978929482666
+    },
+    "recoil135.Chn": {
+        "peak": 964,
+        "std": 68.25966427024736,
+        "amplitude": 13.225628314009729,
+        "num_counts": 902.7769484773817,
+        "peak_err": 1.147688554357539,
+        "std_err": 1.193132530399718,
+        "amplitude_err": 0.1921934694341266,
+        "num_counts_err": 28.898989074928114
+    },
+    "recoil120marked.Chn": {
+        "peak": null,
+        "num_counts": null
+    },
+    "recoil127marked.Chn": {
+        "peak": null,
+        "num_counts": null
+    },
+    "recoil135marked.Chn": {
+        "peak": null,
+        "num_counts": null
+    }
+}

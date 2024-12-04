@@ -152,7 +152,7 @@ def inv_calib_x(orig_x, calib_x, val):
     return int((val - intercept) / slope)
 
 if __name__ == '__main__':
-    angles = [30, 60, 90, 120, 135]
+    angles = [120, 127, 135]
     marked_filenames = [f'scatter{angle}.Chn' for angle in angles] \
         + [f'recoil{angle}.Chn' for angle in angles]
     # get the calibrated x axes for each file, and store them in data/calib_x.pkl
