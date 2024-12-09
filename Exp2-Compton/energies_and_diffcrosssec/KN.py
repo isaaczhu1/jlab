@@ -8,13 +8,23 @@ and try to verify the Klein-Nishina formula for the differential cross section o
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
+from scipy import stats
 
 from load_data import *
 from get_calib import *
 from energy_angle import *
 import json
 
+
 EPS = 661.66/511
+
+
+new = True
+if new:
+    newstr = "new_"
+else:
+    newstr = ""
+
 
 def thomson(theta, r_e, c):
     return r_e**2 * (1 + np.cos(np.radians(theta))**2)/2 + c
@@ -49,7 +59,7 @@ if __name__ == "__main__":
     recoil_num_counts_error = []
 
     # load recoil counts from peak_info.json
-    with open('data/peak_info.json', 'r') as f:
+    with open(f'data/{newstr}peak_info.json', 'r') as f:
         data = json.load(f)
     for angle in angles:
         filename = f'recoil{angle}.Chn'
@@ -95,8 +105,11 @@ if __name__ == "__main__":
     # get chi squared values for the fits
     chi_squared_kn = np.sum((np.array(recoil_flux) - np.array(kn_function(angles, *popt)))**2 / np.array(recoil_flux_error)**2)
     chi_squared_thomson = np.sum((np.array(recoil_flux) - np.array(thomson(angles, *popt_thomson)))**2 / np.array(recoil_flux_error)**2)
-    print(f"Klein-Nishina: chi^2 / dof = {chi_squared_kn} / {len(angles) - len(popt)}")
-    print(f"Thomson: chi^2 / dof = {chi_squared_thomson} / {len(angles) - len(popt_thomson)}")
+    # get the probabilities of the chi squared values
+    prob_kn = 1 - stats.chi2.cdf(chi_squared_kn, len(angles) - len(popt))
+    prob_thomson = 1 - stats.chi2.cdf(chi_squared_thomson, len(angles) - len(popt_thomson))
+    print(f"Klein-Nishina: chi^2 / dof = {chi_squared_kn} / {len(angles) - len(popt)}, p={prob_kn}")
+    print(f"Thomson: chi^2 / dof = {chi_squared_thomson} / {len(angles) - len(popt_thomson)}, p={prob_thomson}")
 
     # plot the fit
     plt.errorbar(angles, recoil_flux, xerr=angle_errors, yerr=recoil_flux_error, fmt='o', label='Fluxes with errors', color='blue')
@@ -104,11 +117,13 @@ if __name__ == "__main__":
     plt.plot(theta_plt, kn_function(theta_plt, *popt), label=f"Klein-Nishina", color='blue')
     plt.plot(theta_plt, thomson(theta_plt, *popt_thomson), label=f"Thomson", color='red')
     plt.xlabel("Angle (degrees)", fontsize=14)
-    plt.ylabel("Flux", fontsize=14)
+    plt.ylabel("Relative Flux", fontsize=14)
 
     # annotate the chi squared values
-    plt.text(0.4, 0.7, f"Klein-Nishina: $\chi^2$ / dof = {chi_squared_kn:.1f} / {len(angles) - len(popt)}", fontsize=12, transform=plt.gca().transAxes)
-    plt.text(0.4, 0.65, f"Thomson: $\chi^2$ / dof = {chi_squared_thomson:.1f} / {len(angles) - len(popt_thomson)}", fontsize=12, transform=plt.gca().transAxes)
+    plt.text(0.22, 0.7, f"Klein-Nishina: $\chi^2$ / dof = {chi_squared_kn:.1f} / {len(angles) - len(popt)}  (p={prob_kn:.2f})", 
+             fontsize=12, transform=plt.gca().transAxes)
+    plt.text(0.22, 0.65, f"Thomson: $\chi^2$ / dof = {chi_squared_thomson:.1f} / {len(angles) - len(popt_thomson)}  (p<10e-30)",
+             fontsize=12, transform=plt.gca().transAxes)
 
     plt.title("Flux vs Angle", fontsize=16)
     plt.legend()

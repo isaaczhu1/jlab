@@ -73,7 +73,7 @@ def gen_plot(filename, binsize=1, scale_from=0):
     if marked:
         title += " (marked)"
 
-    plt.plot(counts)
+    plt.plot(counts, alpha=0.5)
     plt.title(title, fontsize=16)
     plt.xlabel('MCA channel', fontsize=13)
     plt.ylabel('Counts', fontsize=13)

@@ -1,53 +1,23 @@
 {
     "scatter30.Chn": {
-        "peak": 1146,
-        "std": 90.37927598383489,
-        "amplitude": 8.25178158516047,
-        "num_counts": 745.7900452435447,
-        "peak_err": 0.7185472062470586,
-        "std_err": 0.9780574750567591,
-        "amplitude_err": 0.05318953882882167,
-        "num_counts_err": 12.877948671164887
+        "peak": null,
+        "num_counts": null
     },
     "scatter60.Chn": {
-        "peak": 890,
-        "std": 103.4678830646995,
-        "amplitude": 10.977625824404766,
-        "num_counts": 1135.8317051275378,
-        "peak_err": 0.909013634339304,
-        "std_err": 1.61906677958052,
-        "amplitude_err": 0.06968132569895137,
-        "num_counts_err": 24.983288550171316
+        "peak": null,
+        "num_counts": null
     },
     "scatter90.Chn": {
-        "peak": 648,
-        "std": 72.37309442959233,
-        "amplitude": 12.802373895391144,
-        "num_counts": 926.547414854091,
-        "peak_err": 0.4528208997513872,
-        "std_err": 0.6701081199818346,
-        "amplitude_err": 0.0634362443027537,
-        "num_counts_err": 13.170052001526958
+        "peak": null,
+        "num_counts": null
     },
     "scatter120.Chn": {
-        "peak": 501,
-        "std": 48.75445467617231,
-        "amplitude": 20.69472189560906,
-        "num_counts": 1008.9598806954626,
-        "peak_err": 0.29395466309078805,
-        "std_err": 0.45258245412305104,
-        "amplitude_err": 0.09527410365263267,
-        "num_counts_err": 14.01110499125401
+        "peak": null,
+        "num_counts": null
     },
     "scatter135.Chn": {
-        "peak": 466,
-        "std": 34.92476007706014,
-        "amplitude": 24.39618344072091,
-        "num_counts": 852.0308534631254,
-        "peak_err": 0.23723787570260138,
-        "std_err": 0.35766464405199333,
-        "amplitude_err": 0.1278805199712755,
-        "num_counts_err": 13.191848745079074
+        "peak": null,
+        "num_counts": null
     },
     "scatter30marked.Chn": {
         "peak": null,
@@ -70,54 +40,24 @@
         "num_counts": null
     },
     "recoil30.Chn": {
-        "peak": 279,
-        "std": 103.45304267042661,
-        "amplitude": 24.22956956515289,
-        "num_counts": 2506.6226941098316,
-        "peak_err": 0.5901760690373961,
-        "std_err": 0.9415794123958917,
-        "amplitude_err": 0.10596806792826505,
-        "num_counts_err": 33.77678292684751
+        "peak": null,
+        "num_counts": null
     },
     "recoil60.Chn": {
-        "peak": 557,
-        "std": 106.41440389717243,
-        "amplitude": 18.688987428171195,
-        "num_counts": 1988.7774566105875,
-        "peak_err": 0.5411309215334332,
-        "std_err": 0.8454434979771244,
-        "amplitude_err": 0.07366441501686517,
-        "num_counts_err": 23.63943771737718
+        "peak": null,
+        "num_counts": null
     },
     "recoil90.Chn": {
-        "peak": 804,
-        "std": 77.21759165907761,
-        "amplitude": 15.191690303327512,
-        "num_counts": 1173.0657384535127,
-        "peak_err": 0.5902424832771915,
-        "std_err": 0.8053949244627302,
-        "amplitude_err": 0.09412047375554104,
-        "num_counts_err": 19.503066573523952
+        "peak": null,
+        "num_counts": null
     },
     "recoil120.Chn": {
-        "peak": 948,
-        "std": 58.351892501260565,
-        "amplitude": 18.148170894695188,
-        "num_counts": 1058.9801171417594,
-        "peak_err": 0.4808830075563211,
-        "std_err": 0.6541345109575316,
-        "amplitude_err": 0.12121152912356338,
-        "num_counts_err": 18.94426701030673
+        "peak": null,
+        "num_counts": null
     },
     "recoil135.Chn": {
-        "peak": 996,
-        "std": 55.617653196949284,
-        "amplitude": 18.17630914159262,
-        "num_counts": 1010.9236582376371,
-        "peak_err": 0.5170711772379151,
-        "std_err": 0.6539461886961883,
-        "amplitude_err": 0.1378492218513292,
-        "num_counts_err": 19.553178302104726
+        "peak": null,
+        "num_counts": null
     },
     "recoil30marked.Chn": {
         "peak": null,

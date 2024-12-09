@@ -54,7 +54,7 @@ def get_energy(filename, exp_eng_peak, verbose=False, name="none"):
         print(f"Expected energy of {exp_eng_peak} corresponds to index {exp_int_peak}")
 
 
-    peak_info = get_peak(counts, exp_int_peak, debug=verbose, plot=True, peak_name=name)
+    peak_info = get_peak(counts, exp_int_peak, debug=verbose, plot=False, peak_name=name)
     peak = peak_info['mean']
     peak_std = abs(peak_info['std'])
     peak_amplitude = peak_info['amplitude']
@@ -138,12 +138,19 @@ if __name__ == "__main__":
         counts = read_data(filename)['counts']
         # smooth counts by replacing every bin with the average of the bin and its neighbors
         counts = np.array([np.mean(counts[max(0, i-1):min(len(counts), i+2)]) for i in range(len(counts))])
-        get_energy(f'recoil{angle}.Chn', expected_recoil[angles.index(angle)], verbose=verbose, name="recoil"+str(angle))
+        get_energy(f'recoil{angle}.Chn', expected_recoil[angles.index(angle)], verbose=False, name="recoil"+str(angle))
         recoil_energy, recoil_energy_err = load_energy(f'recoil{angle}.Chn')
         # recoil_energy = get_energy(f'recoil{angle}.Chn', expected_recoil[angles.index(angle)], verbose=verbose, name="recoil"+str(angle))
         print(f"Expected recoil energy: {expected_recoil[angles.index(angle)]}")
         print(f"Actual recoil energy: {recoil_energy}")
-        plt.plot(range(len(counts)), counts, alpha=0.5)
+
+        # load the object calib_x from ./data/calib_x.pkl
+        with open('data/calib_x.pkl', 'rb') as f:
+            data = pickle.load(f)
+            counts_calib_x = data[f'recoil{angle}.Chn']
+
+        # plt.plot(range(len(counts)), counts, alpha=0.5)
+        plt.plot(counts_calib_x, counts, alpha=0.5)
         plt.title(f'Calibrated recoil at {angle}°', fontsize=16)
         plt.xlabel('Energy (keV)', fontsize=13)
         plt.ylabel('Counts', fontsize=13)
